@@ -3,4 +3,7 @@
 *.elf
 *.hex
 
-build/
+build
+
+.vscode/
+

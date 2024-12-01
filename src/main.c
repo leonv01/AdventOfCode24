@@ -1,7 +1,9 @@
 #include <stdio.h>
 
+#include "day1/day1.h"
+
 int main(void)
 {
-    printf("Hello, World!\n");
+    day1Task1();
     return 0;
 }

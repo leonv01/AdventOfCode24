@@ -1,12 +1,27 @@
-cmake_minimum_required(VERSION 3.10 REQUIRED)
+cmake_minimum_required(VERSION 3.26)
+project(AdventOfCode24)
 
-set(PROJECT_NAME "AdventOfCode24")
-project(${PROJECT_NAME})
+set(CMAKE_C_STANDARD 90)
+set(CMAKE_C_STANDARD_REQUIRED True)
 
-set(CMAKE_C_STANDARD 89)
 
-add_executable(${PROJECT_NAME} main.c)
+if(NOT CMAKE_BUILD_TYPE)
+    set(CMAKE_BUILD_TYPE Debug CACHE STRING "Build type" FORCE)
+endif()
 
-add_subdirectory(src)
+if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+    set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -g")
+endif()
 
-target_link_libraries(${PROJECT_NAME} PRIVATE src)
+# Include necessary directories
+include_directories(src)
+
+file(GLOB MAIN_SOURCE
+        src/*.c
+)
+
+#file(GLOB_RECURSE APP_SOURCES
+#        src/...
+#)
+
+add_executable(AdventOfCode24 ${MAIN_SOURCE})#${APP_SOURCES})
