@@ -34,10 +34,22 @@ static void insertNode(BinarySearchTree_t *tree, int value);
  */
 static Node_t *getLowestNode(BinarySearchTree_t *tree);
 
-void day1Task1()
+/**
+ * @brief Get the Occurance object
+ * 
+ * @param tree 
+ * @param value 
+ * @return int 
+ */
+static int getOccurance(BinarySearchTree_t *tree, int value);
+
+static void getValuesOfLine(char *string, size_t *index, int *value1, int *value2);
+
+void day1Task1(void)
 {
     long fileSize;
     long lineCount;
+
     char *string = loadFileToBuffer( &fileSize, &lineCount, "C:\\Users\\leonv\\Documents\\AdventOfCode24\\src\\day1\\input.txt");
     size_t i;
 
@@ -55,43 +67,12 @@ void day1Task1()
     // Iterate through each character
     for(i = 0; i < fileSize; i++)
     {
-        char buffer[bufferSize];
+        int leftValue;
+        int rightValue;
+        getValuesOfLine(string, &i, &leftValue, &rightValue);
 
-        // Read until whitespace
-        while(string[i] != ' ')
-        {
-            buffer[bufferIndex] = string[i];
-            i++;
-            bufferIndex++;
-        }
-        // Convert value from string to int
-        int leftValue = atoi(buffer);
-        // Insert into tree
         insertNode(&leftTree, leftValue);
-
-        // Reset buffer index
-        bufferIndex = 0;
-
-        // Skip whitespace
-        while(string[i] == ' ')
-        {
-            i++;
-        }
-        
-        // Read until line end
-        while(string[i] != '\n')
-        {
-            buffer[bufferIndex] = string[i];
-            i++;
-            bufferIndex++;
-        }
-        // Convert value from string to int
-        int rightValue = atoi(buffer);
-        // Insert into tree
         insertNode(&rightTree, rightValue);
-
-        // Reset buffer index
-        bufferIndex = 0;
     }
 
     // Iterate for each line
@@ -108,8 +89,63 @@ void day1Task1()
         differenceSum += difference;
     }
 
-    printf("%ld\n", differenceSum);
+    printf("Day 1 Task 1 result: %ld\n", differenceSum);
 }
+
+void day1Task2(void)
+{
+    long fileSize;
+    long lineCount;
+
+    char *string = loadFileToBuffer( &fileSize, &lineCount, "C:\\Users\\leonv\\Documents\\AdventOfCode24\\src\\day1\\input2.txt");
+    size_t i;
+
+    long occuranceSum = 0;
+
+    const int bufferSize = 16;
+    int bufferIndex = 0;
+
+    BinarySearchTree_t leftTree = { 0 };
+    BinarySearchTree_t rightTree = { 0 };
+
+    leftTree.root = NULL;
+    rightTree.root = NULL;
+
+    // Iterate through each character
+    for(i = 0; i < fileSize; i++)
+    {
+        int leftValue;
+        int rightValue;
+        getValuesOfLine(string, &i, &leftValue, &rightValue);
+
+        insertNode(&leftTree, leftValue);
+        insertNode(&rightTree, rightValue);
+    }
+
+    // Iterate for each line
+    int lastValue = 0;
+    int lastOccurance = 0;
+    for(i = 0; i < lineCount; i++)
+    {
+        Node_t *leftNode = getLowestNode(&leftTree);
+        int occurance = 0;
+
+        int result = 0;
+        if(lastValue != leftNode->value)
+        {
+            occurance = getOccurance(&rightTree, leftNode->value);
+            lastValue = leftNode->value;
+            lastOccurance = occurance;
+        }
+        
+        result = lastOccurance * lastValue;
+
+        occuranceSum += result;
+    }
+
+    printf("Day 2 Task 2 result: %ld\n", occuranceSum); 
+}
+
 
 void insertNode(BinarySearchTree_t *tree, int value)
 {
@@ -201,6 +237,81 @@ static Node_t *getLowestNode(BinarySearchTree_t *tree)
     }
 
     return node;
+}
+
+static int getOccurance(BinarySearchTree_t *tree, int value)
+{
+    int occurance = 0;
+    Node_t *nodePtr = tree->root;
+
+    while(nodePtr != NULL)
+    {
+        if(nodePtr->value == value)
+        {
+            occurance++;
+        }
+        if(value >= nodePtr->value)
+        {
+            if(nodePtr->rightChild == NULL)
+            {
+                break;
+            }
+            else
+            {
+                nodePtr = nodePtr->rightChild;
+            }
+        }
+        if(value < nodePtr->value)
+        {
+            if(nodePtr->leftChild == NULL)
+            {
+                break;
+            }
+            else
+            {
+                nodePtr = nodePtr->leftChild;
+            }
+        }
+    }
+
+    return occurance;
+}
+
+static void getValuesOfLine(char *string, size_t *index, int *value1, int *value2)
+{
+    const int bufferSize = 16;
+    int bufferIndex = 0;
+
+    char buffer[bufferSize];
+
+    // Read until whitespace
+    while(string[*index] != ' ')
+    {
+        buffer[bufferIndex] = string[*index];
+        (*index)++;
+        bufferIndex++;
+    }
+    // Convert value from string to int
+    *value1 = atoi(buffer);
+
+    // Reset buffer index
+    bufferIndex = 0;
+
+    // Skip whitespace
+    while(string[*index] == ' ')
+    {
+        (*index)++;
+    }
+    
+    // Read until line end
+    while(string[*index] != '\n')
+    {
+        buffer[bufferIndex] = string[*index];
+        (*index)++;
+        bufferIndex++;
+    }
+    // Convert value from string to int
+    *value2 = atoi(buffer);
 }
 
 #endif //DAY_1_H
